@@ -13,7 +13,6 @@ and I think it's about time I start sharing with the world what I'm up to.
 No, I'm not gonna try to sell you my game (yet). Rather, I'll talk about some nerdy aspects of gamedev that interests me greatly. 
 
 # No, it's not science-based or 100% dragon
-
 So, what's the personal project I've been been working on for a couple years? Yeah, it's an MMORPG. And, yeah, it's a solo project. 
 
 What kind of madman thinks he can make an MMORPG alone? I hope I'm somewhere on the right side of the Dunning-Kruger curve, but who knows, 
@@ -44,8 +43,8 @@ my game yet, it's a bit too early for that.
 # Haven't we seen that tree before?
 
 I have a proud history of re-inventing the wheel, repeatedly. Especially when it comes to my personal projects, I tend to chase
-some tangent, spending a lot of time doing things that might not be particularily productive in the grand scheme of things. I see
-a squirrel, I chase it. I'm, however, very much aware that this is the only way I can really keep myself motivated, long term,
+some tangent, spending a lot of time doing things that might not be particularly productive in the grand scheme of things. I see
+a squirrel, I chase it. I'm, however, very much aware that this is the only way I can really keep myself motivated long term,
 when it comes to personal projects, so I try not to be too harsh on myself.
 
 As mentioned, it's very important that server hosting gets as cheap as possible. 
