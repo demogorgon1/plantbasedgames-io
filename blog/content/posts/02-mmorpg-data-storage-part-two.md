@@ -1,13 +1,12 @@
 +++
 title = "MMORPG Data Storage (Part 2)"
-date = "2023-03-07"
+date = "2023-03-13"
 author = "Rasmus"
 cover = ""
 description = ""
-draft = true
 +++
 
-All the simplest, and probably most reasonable, designs entail that a client will only ever be connected to a single game server at a time. This implies that once in a while the client will have to switch from one server to another. As mentioned earlier, this could be when he enters through a 
+All the simplest, and probably most reasonable, designs entail that a client will only ever be connected to a single game server at a time. This implies that once in a while the client will have to switch from one server to another. As mentioned earlier, this could be when he enters through an 
 instance portal into a dungeon, or if he takes the boat to another continent or island. 
 
 As a sequence diagram it might look something like this:
@@ -90,9 +89,10 @@ Essentially we want to put a global exclusive lock around a the progress data of
 *Blob key* could be some kind of player ID or it could be something derived from it. It's what we'll use to find the progress data of a player. In this example we can see that blob key 1 has been locked by Game Server A, while blob key 2 isn't currently locked.
 
 When trying to acquire a lock, a game server will try to insert its lock ID for the specified blob key, but it should only succeed if the *lock ID* field is empty or if its already locked by the same game server. If another game server has the lock, it's good practice 
-to wait a bit and try again as it's not unlikely that the other game server is in process of unlocking. We'll also need to have some kind of attempt limit or timeout, otherwise we could end up in a situation where it's stuck forever. 
+to wait a bit and try again as it's not unlikely that the other game server is in process of unlocking. We'll also need to have some kind of attempt limit or timeout, otherwise we could end up in a situation where it's stuck forever. The player will likely be staring at a 
+loading screen while this is happening.
 
-When it's time to release the lock, it should simply clear the *lock ID* field, but it should verify again that it still has the lock. We should be careful not to clear the lock of someone else. Whenever we're trying to save a blob, we should also check that we still have the lock.
+When it's time to release the lock, it should simply clear the *lock ID* field, but it should verify again that it still has the lock. We should be careful not to clear the lock of another game server. Whenever we're trying to save a blob, we should also check that we still have the lock.
 
 ## Alternative ways to lock
 If you're so inclined, you can move the locking somewhere else. Imagine you don't want to have a direct mapping between a player ID and a single blob: maybe you want to have multiple blobs per player and you want to lock all of them at the same time. The lock acquisition logic
@@ -114,10 +114,11 @@ The main blob table then looks something like this:
 |2       |1234                |45             |(serialized progress data)|
 |*etc*   |*etc*               |*etc*          |*etc*                     |
 
-When saving a blob, we can then check to see if the lock sequence number we acquired is larger or equal to than the one stored in the blob table. If it's the case we update the blob together with the lock sequence number, otherwise we know that someone else acquired the lock in the
-meantime. 
+When saving a blob, we'll verify that either the entry doesn't exist or the lock sequence number matches the one we got when we acquired the lock. But wait, how does the lock sequence number get into the blob table? We can put it there when we read the blob, which always happens right after 
+we acquire the lock. Usually the new lock sequence number value will be larger than the previous one in the blob table, but we can't rely on that as the lock table could have been lost and reset since last time. Numbers might all be reset. Since the lock table isn't strictly necessary for
+operation, we shouldn't rely on it too much, so we should simply discard the old lock sequence number stored with the blob. All subsequent blob saves should match the lock sequence number, though, otherwise we know that some other game server has stolen the lock, somehow.
 
-Note that it requires the fulfillment of a bunch of edge cases to arrive at the situation where a healthy game server loses the lock of one of its client, but again, belt and suspenders. Better safe than sorry.
+Note that it requires the fulfillment of a bunch of edge cases to arrive at the situation where a healthy game server loses the lock of one of its clients, but again, belt and suspenders. Better safe than sorry.
 
 Do we really need to store the lock table in a database? We could, potentially, just run a *lock server* process with a big hash table of locks in memory, where all game servers connect. This would probably be fine 99.99% of the time, but we get some problems if 
 this hypothetical lock server crashes and restarts. All the game servers would need to scramble to apply their locks again, which could get messy. It seems safer to persist locks on disk. Besides, we can store more useful meta data with the locks, but we'll talk about that at a later point.
@@ -125,14 +126,14 @@ this hypothetical lock server crashes and restarts. All the game servers would n
 ## My game server went kaboom!
 What happens with the locks of a game server that suddenly disappeared off the map? The locks are going to stay locked and other game servers will wait indefinitely to access the blobs. Most of the time it's safe to assume that if a client has been waiting for a certain amount of time
 for their blob to be unlocked, we should just proceed and forcefully apply a new lock, overriding the existing one. Optionally we can present this decision to the player, whether or not he wants to take the chance, although it will surely be confusing the average player. These forceful unlocks
-makes it important that game servers always check if they still have the lock, whenever they're saving data.
+make it important that game servers always check if they still have the lock, whenever they're saving data.
 
 ## Some made up numbers
 Let's forget about locking mechanisms for a bit and go back to blob storage. I can imagine that some readers might think that it seems crazy to serialize and save player progress data pretty much all the time. After all, it's going to be mostly the same data saved over and over again. 
 Often an updated blob will only have a couple bytes that are different from the previous one. Serializing a new blob, sending it over the network, and finally writing it to a database, it definitely seems like a lot of work.
 
 We can do a little back-of-the-napkin math. Imagine a game where the average blob is 10 KB, which is quite reasonable if you're very careful about how you serialize things. You can cram *a lot* of stuff into 10 KB if you avoid wasting space with strings and 16-byte GUIDs. Of course the
-serialization itself might need a little CPU time, but if you're feeling creative you can surely come up with some tricks. For example, your game server session object will probably consist of a bunch of different subsystems that can be serialized independently. You can cache the latest 
+serialization itself might need a little CPU time, but if you're feeling creative you can surely come up with some optimization tricks. For example, your game server session object will probably consist of a bunch of different subsystems that can be serialized independently. You can cache the latest 
 serialization of each of these separately. The final blob will then just be mostly a bunch of data copied from this cache. 
 
 You can also do some tricks to reduce how often you save things. For example, different kinds of changes to the player progress can be assigned different priority levels. Looting a rare item could be very high priority, while the player's position in the world could be very low priority.
@@ -164,12 +165,13 @@ database and send everything in it back to the central one, obviously checking i
 Now what happens when the game server goes kaboom and never restarts again? First of all it will still have all the locks in the central database, which we need to handle with automatic forceful unlocks like discussed earlier. Secondly, now we lost absolutely all progress from all current 
 sessions, because they we're only stored on the local database which is now swallowed by a shark, or whatever. Because of this it seems like a good idea to still continuously save back to the central database, but maybe only every 10 or 20 minutes, instead of every 20 seconds.
 
-## Summary
-The main takeaway from the blog post is that we need some kind of exclusive locking mechanism to protect accidental overwrites of blobs. This allows
-robustly having client switching between game servers while playing.
+It's worth noting that if you use local temporary databases like this, a persistent locking mechanism becomes much more important. When every game server has a disk attached to it full of the latest player progress data, it becomes much more likely that some of it get "stuck" and is submitted back to 
+the central database at a later point, where it's going to overwrite newer data. Like, let's say a game server crashes, which will leave its local data in limbo until it restarts. But what if it doesn't restart immediately? Maybe something prevents it from restarting all together, until someone 
+changes some configuration a month later, where it will then try to submit its data back. If a locking mechanism is used, it will see that it no longer has the locks, and thus shouldn't overwrite anything.
 
-At this point I feel like we've covered all of the main points of MMORPG data storage from a high-level point of view. In the next blog post
-of this series we'll delve deeper and discuss what options we have when it come to actual database systems to use. 
+## Wrapping up the second part
+The main takeaway from the blog post is that we need some kind of exclusive locking mechanism to protect accidental overwrites of blobs. Besides introducing general fault tolerance, this allows robustly having client switching between game servers while playing.
 
+At this point I feel like we've covered all of the main points of MMORPG data storage from a high-level point of view. In the next post of this series we'll delve deeper and look into the "black box" we've so far used as a database. 
 
 
