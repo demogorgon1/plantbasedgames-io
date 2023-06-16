@@ -31,7 +31,7 @@ platform for my database engine. Luckily, a lot of the code from the first proje
 Eventually I got carried away, again.
 
 # Introducing Trolddom
-![Sequence diagram with more boom](/blog/images/trolddom.gif)
+![Trolddom](/blog/images/trolddom.gif)
 *Brave adventurer venturing into a dungeon to kill a foul goblin. Huzzah.*
 
 As you can probably infer, the game is completely tile-based to make it nice and simple. This makes it look like an old rogue-like (with some graphics painted on),
