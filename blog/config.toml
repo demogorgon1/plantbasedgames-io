@@ -15,7 +15,7 @@ paginate = 5
     title = "Plant Based Games"
     subtitle = ""
     keywords = ""
-    copyright = "(C) 2023 Rasmus Neckelmann"
+    copyright = "(C) 2024 Rasmus Neckelmann"
     menuMore = "Show more"
     readMore = "Read more"
     readOtherPosts = "Read other posts"
@@ -25,6 +25,11 @@ paginate = 5
       logoHomeLink = "/blog/"
 
     [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "trolddom"
+        name = "Trolddom"
+        url = "https://trolddom.com"
+	
       [[languages.en.menu.main]]
         identifier = "about"
         name = "About"
