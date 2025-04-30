@@ -1,6 +1,6 @@
 +++
 title = "Still Alive"
-date = "2025-04-28"
+date = "2025-04-30"
 author = "Rasmus"
 cover = ""
 description = ""
@@ -65,7 +65,7 @@ By completing quests on behalf of your faction its power will be increased. You 
 
 What kind of rewards can you get? Quests give you tokens that be used to buy unique rare (and a little epic) gear from special vendors in the zone. World bosses also drop a bunch of tokens for anyone who participates in killing them.
 
-If faction balance is too lopsided there are ways to temporarily fight for the opposite faction.
+If faction balance gets too lopsided there are ways to temporarily fight for the opposite faction.
 
 ## Balancing
 All previous balancing have been kinda YOLO, but now I have a few better tools to see how much damage and healing are happening. It should be better now, but I'm under no illusion that class balance is perfect, especially not when it comes to PVP. I'm imagining that it will be possible to do some quite degenerate things to other players in The Shrouded Lands. Will people be instagibbed by geared out fighters or will mages just kite forever? I'm not really sure. As you're probably aware, Trolddom is a solo show, so unfortunately there isn't a big team of testers to make sure everything works like intended. If the game ever gains some kind of traction and attracts enough players then I'll probably put up some kind of public test realm, but at this point that would be kinda silly.
@@ -79,4 +79,4 @@ I've added so much stuff to the game that I've kinda lost track of it, so this b
 
 I'm not exactly convinced that it will be possible to bring back players after the game being a ghost town for a few months, but I'll keep working on the game because I love it. I want to take the game to a place where I'm comfortable taking it out of Early Access, which I think will be coincide with raising the level cap to 30. After that I'll keep trucking as long as there are people playing it (and probably longer than that because I can't help myself).
 
-If you've played the game earlier, go try it out again on Steam! And, oh, I raised the level cap of the demo to 10, meaning that all the previous content is now available for free.
+Unless something really bad happens I'll release the update tomorrow on May 1st. Probably around noon in Europe. If you've played the game earlier, go try it out again on Steam! And, oh, I'm raising the level cap of the demo to 10, meaning that all the previous content will be available for free.
