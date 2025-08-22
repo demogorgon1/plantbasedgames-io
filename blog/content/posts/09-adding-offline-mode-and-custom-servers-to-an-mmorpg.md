@@ -141,9 +141,9 @@ New can of worms unlocked.
 In the end I went with (1) as default and a watered down version of (2) as an extra option. I simply skipped all the horrible password reset and email parts. I figured that if someone really wants to set up their own fully fledged server environment, then they can deal with it themselves outside of the game (with some kind of website, probably). 
 
 # Key takeaways
-This blog post have become way too so I'll try to wrap it up as quickly as possible. 
+This blog post have become way too long, so I'll try to wrap it up as quickly as possible. 
 
-So, you want to have an offline mode and allow custom servers for your, otherwise, very online game? You should try to plan ahead, i.e. don't be like me and glue it on later.
+You want to have an offline mode and allow custom servers for your, otherwise, very online game? You should try to plan ahead, i.e. don't be like me and glue it on later.
 
 1. Think about how to allow different kinds of user authentication. Steam authentication is amazing, but it obviously requires Steam. Don't code yourself into a corner where everything expects a specific mode of authentication. This applies to both offline mode and custom servers.
 2. Think about databases and how they'll work when run locally by players. This applies mostly to offline mode. For custom servers it's probably not too unreasonable to expect players to run something like *PostgreSQL*. It depends how user friendly you need to be, I guess.
