@@ -9,9 +9,12 @@ description = ""
 The possibility of modifying Trolddom has been around since the start, but it has been quite an obscure feature. Recently some players have been trying their luck with it, so I decided it was time to streamline the
 procedure a bit. Patch 1.0.12 hopefully makes everything a bit simpler. This blog post is the first in a series where I try to show how things in the game can be changed. 
 
+> Note from the future: ```tpublic-util.exe``` is no longer included when you get Trolddom on Steam. Apparently it triggered some people's overly zealous anti-virus programs. I've updated this post accordingly.
+
 ## What do I need?
-Previously you'd need to build your own tools with CMake and Visual Studio (or another C++ compiler if not on Windows), but luckily you don't need to have either of those two things on your computer anymore. The only thing you'll need is git and a copy of Trolddom. If you've never heard about git you probably need to do a quick google about it before continuing. I'm going to assume that you're using a command prompt for this, but you could 
-obviously do everything in a GUI if you wanted to. 
+* A copy of Trolddom for the binary data to extend.
+* git for the source data that you can modify. If you've never heard about git you probably need to do a quick google about it before continuing. I'm going to assume that you're using a command prompt for this, but you could obviously do everything in a GUI if you wanted to. 
+* Download ```tpublic-util.exe``` that matches your version of Trolddom from https://github.com/demogorgon1/trolddom-public/releases. Be careful that you always have the correct version of the utility. Backward or forward compatibility is not guaranteed.
 
 ## Getting the public repository
 1. Open a command prompt.
@@ -27,25 +30,28 @@ It should output something like this:
 
 ![Successful git clone](/blog/images/git.png)
 
+Note that this clones the ```live``` branch which corresponds to the version of Trolddom that is currently online.
+
+## What do I do when there is a new version of Trolddom?
+Do a ```git pull``` in your cloned repository to get the latest source data. If you have a bunch of local changes you might need to stash them first (again, ask google for help if needed). Download the matching ```tpublic-util.exe``` released on the github page of the repository.
+
 ## Building the data
 Congratulations, now you have all the Trolddom source data, but in order for the game to use it, you need to perform a *data build*. Basically, the source data is a bunch of assorted files, mostly text files
 and image files that define everything in the game, and we need to transform these into a more compact form used by the game. All this source data is in the ```data``` directory in the git repository.
 
-The Trolddom client is distributed with the tool you need for this: ```tpublic-util.exe```. You'll find it in the directory you installed Trolddom in, which typically will be ```c:\Program Files (x86)\Steam\steamapps\common\Trolddom```.
-
 1. Enter the ```trolddom-public``` repository with your command prompt.
 
-2. Run the tool:
-```bash
-c:\Program Files (x86)\Steam\steamapps\common\Trolddom\tpublic-util.exe data -ids _ids.txt -base "c:\Program Files (x86)\Steam\steamapps\common\Trolddom"
-```
+2. Figure out where the build tool (```tpublic-util.exe```) you downloaded from github is. Let's assume that you put it in the root of the repository, but obviously you could put it anywhere. 
 
-If you plan on doing this a lot, you probably want to put ```c:\Program Files (x86)\Steam\steamapps\common\Trolddom``` in your PATH.
+3. Run the tool in the root of the repository:
+```bash
+tpublic-util.exe data -ids _ids.txt -base "c:\Program Files (x86)\Steam\steamapps\common\Trolddom"
+```
 
 Let's dissect it a bit:
 
 ```bash
-tpublic-util <source path> -ids <path to _ids.txt> -base <game install directory>
+tpublic-util.exe <source path> -ids <path to _ids.txt> -base <game install directory>
 ```
 The *source path* points to where your input data is. Note that you can have multiple source paths if you want to. The ```_ids.txt``` file is the *persistent id table*, more on that later, and finally it needs to read some data from your game install directory, because not everything is included in the public git repository. Basically, it will take whatever is in the install directory and overwrite it with whatever is defined by the data source. 
 
